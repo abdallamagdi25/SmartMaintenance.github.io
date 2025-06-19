@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilingual Interactive Report: Smart Automotive Maintenance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Auto Tech 2.0 -->
+    <!-- Application Structure Plan: The SPA is structured to guide the user from a relatable problem to a powerful solution. It starts with "The Problem" (the stress of unexpected car trouble), introduces "The Solution" (the smart maintenance system), provides a "Technology Deep Dive" to build credibility, walks through a "User Scenario" to make the benefits tangible, outlines the "Key Benefits," and finishes with a concise "Summary." This narrative flow is designed to be persuasive for both end-users and potential investors. -->
+    <!-- Visualization & Content Choices: 
+        - The Problem: Goal=Relatability. Viz=Icon-based pain points. Interaction=None. Justification=Quickly establishes a common problem for users.
+        - The Solution/Architecture: Goal=Organize/Explain. Viz=Animated HTML/Tailwind diagram. Interaction=CSS animations to show data flow. Justification=Visually simplifies a complex technical process.
+        - Live Dashboard Demo: Goal=Demonstrate/Engage. Viz=Simulated car dashboard. Interaction=Clickable buttons to trigger different system alerts (e.g., low tire pressure, engine fault). Justification=Provides a tangible, interactive "product" demonstration.
+        - User Scenario Walkthrough: Goal=Explain Process. Viz=Step-by-step timeline. Interaction=Clickable steps to reveal details. Justification=Clearly illustrates the user journey from fault detection to resolution.
+        - Benefits Section: Goal=Inform/Persuade. Viz=Icon-based benefit cards. Interaction=Hover effects. Justification=Summarizes the value proposition in a scannable format.
+        - Summary Section: Goal=Synthesize/Recap. Viz=Structured text. Interaction=None. Justification=Provides a strong concluding statement.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        :root {
+            --font-en: 'Inter', sans-serif;
+            --font-ar: 'Cairo', sans-serif;
+        }
+        body {
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+        [lang="en"] body, [lang="en"] button, [lang="en"] input, [lang="en"] select, [lang="en"] textarea {
+            font-family: var(--font-en);
+        }
+        [lang="ar"] body, [lang="ar"] button, [lang="ar"] input, [lang="ar"] select, [lang="ar"] textarea {
+            font-family: var(--font-ar);
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0ea5e9;
+            border-bottom-color: #0ea5e9;
+        }
+        .scenario-step {
+            transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
+        }
+        .scenario-step.active {
+            background-color: #d1fae5;
+            border-color: #10b981;
+            transform: scale(1.05);
+        }
+        .dashboard-alert {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        /* Flow Animation */
+        .flow-line {
+            position: relative;
+            width: 100%;
+            height: 2px;
+            background-color: #94a3b8;
+        }
+        .flow-dot {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #0ea5e9;
+            border-radius: 50%;
+            top: -4px;
+            animation: flow 5s linear infinite;
+            box-shadow: 0 0 8px rgba(14, 165, 233, 0.8);
+        }
+        [dir="rtl"] .flow-dot {
+            animation-name: flow-rtl;
+        }
+        @keyframes flow {
+            from { left: 0; }
+            to { left: 100%; }
+        }
+        @keyframes flow-rtl {
+            from { right: 0; }
+            to { right: 100%; }
+        }
+        /* Reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header id="header" class="bg-white/90 backdrop-blur-lg sticky top-0 z-50 shadow-md">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div id="logo-container" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <span class="text-4xl">🚗</span>
+                <div>
+                    <h1 id="logo-title" class="text-xl font-bold text-slate-800 leading-tight">AutoGuard</h1>
+                    <p id="logo-subtitle" class="text-sm text-slate-500 leading-tight">Smart Vehicle Maintenance</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center space-x-3 lg:space-x-4 text-sm rtl:space-x-reverse">
+                <a href="#problem" id="nav-problem" class="nav-link pb-1 font-medium">The Problem</a>
+                <a href="#solution" id="nav-solution" class="nav-link pb-1 font-medium">The Solution</a>
+                <a href="#dashboard" id="nav-dashboard" class="nav-link pb-1 font-medium">Live Demo</a>
+                <a href="#scenario" id="nav-scenario" class="nav-link pb-1 font-medium">User Scenario</a>
+                <a href="#benefits" id="nav-benefits" class="nav-link pb-1 font-medium">Benefits</a>
+                <a href="#summary" id="nav-summary" class="nav-link pb-1 font-medium">Summary</a>
+                <button id="lang-switcher" class="px-3 py-2 text-sm font-semibold rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">العربية</button>
+            </div>
+             <button id="mobile-menu-button" class="md:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <div class="w-6 h-0.5 bg-gray-700 mb-1"></div>
+                <div class="w-6 h-0.5 bg-gray-700 mb-1"></div>
+                <div class="w-6 h-0.5 bg-gray-700"></div>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4 border-t">
+             <a href="#problem" id="mobile-nav-problem" class="block py-2 nav-link font-medium">The Problem</a>
+             <a href="#solution" id="mobile-nav-solution" class="block py-2 nav-link font-medium">The Solution</a>
+             <a href="#dashboard" id="mobile-nav-dashboard" class="block py-2 nav-link font-medium">Live Demo</a>
+             <a href="#scenario" id="mobile-nav-scenario" class="block py-2 nav-link font-medium">User Scenario</a>
+             <a href="#benefits" id="mobile-nav-benefits" class="block py-2 nav-link font-medium">Benefits</a>
+             <a href="#summary" id="mobile-nav-summary" class="block py-2 nav-link font-medium">Summary</a>
+            <button id="mobile-lang-switcher" class="mt-2 w-full px-3 py-2 text-sm font-semibold rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">العربية</button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 md:py-12">
+
+        <!-- All sections will be dynamically populated by JS -->
+        <section id="problem" class="text-center mb-20 md:mb-32 scroll-mt-20"></section>
+        <section id="solution" class="mb-20 md:mb-32 scroll-mt-20"></section>
+        <section id="dashboard" class="mb-20 md:mb-32 scroll-mt-20"></section>
+        <section id="scenario" class="mb-20 md:mb-32 scroll-mt-20"></section>
+        <section id="benefits" class="mb-20 md:mb-32 scroll-mt-20"></section>
+        <section id="summary" class="mb-20 md:mb-32 scroll-mt-20"></section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-white mt-24">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p id="footer-text">&copy; 2024 AutoGuard. Transforming vehicle ownership through smart technology.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentLang = 'en';
+
+            const translations = {
+                en: {
+                    "logo-title": "AutoGuard", "logo-subtitle": "Smart Vehicle Maintenance",
+                    "nav-problem": "The Problem", "mobile-nav-problem": "The Problem",
+                    "nav-solution": "The Solution", "mobile-nav-solution": "The Solution",
+                    "nav-dashboard": "Live Demo", "mobile-nav-dashboard": "Live Demo",
+                    "nav-scenario": "User Scenario", "mobile-nav-scenario": "User Scenario",
+                    "nav-benefits": "Benefits", "mobile-nav-benefits": "Benefits",
+                    "nav-summary": "Summary", "mobile-nav-summary": "Summary",
+                    "lang-switcher": "العربية", "mobile-lang-switcher": "العربية",
+                    "footer-text": "&copy; 2024 AutoGuard. Transforming vehicle ownership through smart technology."
+                },
+                ar: {
+                    "logo-title": "الحارس الذكي", "logo-subtitle": "الصيانة الذكية للمركبات",
+                    "nav-problem": "المشكلة", "mobile-nav-problem": "المشكلة",
+                    "nav-solution": "الحل", "mobile-nav-solution": "الحل",
+                    "nav-dashboard": "العرض الحي", "mobile-nav-dashboard": "العرض الحي",
+                    "nav-scenario": "سيناريو الاستخدام", "mobile-nav-scenario": "سيناريو الاستخدام",
+                    "nav-benefits": "الفوائد", "mobile-nav-benefits": "الفوائد",
+                    "nav-summary": "الملخص", "mobile-nav-summary": "الملخص",
+                    "lang-switcher": "English", "mobile-lang-switcher": "English",
+                    "footer-text": "&copy; 2024 الحارس الذكي. نُغيّر مفهوم ملكية المركبات عبر التكنولوجيا الذكية."
+                }
+            };
+
+            const sectionTemplates = {
+                problem: (lang) => `
+                    <h1 class="text-4xl md:text-5xl font-bold text-slate-800 mb-4 reveal">${lang === 'ar' ? 'غموض أعطال السيارات: قلق وتكاليف غير متوقعة' : 'The Black Box Problem: Stress & Unpredictable Costs'}</h1>
+                    <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-12 reveal">${lang === 'ar' ? 'بالنسبة لمعظم السائقين، السيارة الحديثة هي صندوق أسود. تظهر أضواء التحذير فجأة، والأعطال تحدث في أسوأ الأوقات، وتكون تكاليف الإصلاح غامضة ومكلفة. هذا النقص في الشفافية يخلق قلقًا وعدم ثقة.' : 'For most drivers, a modern car is a black box. Warning lights appear suddenly, breakdowns happen at the worst times, and repair costs are opaque and expensive. This lack of transparency creates stress, distrust, and significant expense.'}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-lg reveal text-center"><div class="text-5xl mb-4">⚠️</div><h3 class="font-bold text-xl mb-2">${lang === 'ar' ? 'تنبيهات غير مفهومة' : 'Cryptic Warnings'}</h3><p class="text-slate-600">${lang === 'ar' ? 'ضوء "فحص المحرك" لا يخبرك بشيء مفيد، مما يتركك تجهل خطورة المشكلة.' : 'The "Check Engine" light tells you nothing useful, leaving you to guess at the severity.'}</p></div>
+                        <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-lg reveal text-center" style="transition-delay: 150ms;"><div class="text-5xl mb-4">💸</div><h3 class="font-bold text-xl mb-2">${lang === 'ar' ? 'تكاليف إصلاح باهظة' : 'Expensive Repairs'}</h3><p class="text-slate-600">${lang === 'ar' ? 'تؤدي الأعطال غير المتوقعة إلى إصلاحات طارئة مكلفة كان من الممكن تجنبها بالصيانة التنبؤية.' : 'Unexpected failures lead to expensive emergency repairs that could have been prevented with predictive maintenance.'}</p></div>
+                        <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-lg reveal text-center" style="transition-delay: 300ms;"><div class="text-5xl mb-4">⏱️</div><h3 class="font-bold text-xl mb-2">${lang === 'ar' ? 'الوقت الضائع' : 'Wasted Time'}</h3><p class="text-slate-600">${lang === 'ar' ? 'قضاء ساعات في ورش الصيانة لتشخيص مشكلة يمكن لنظام ذكي تحديدها في ثوانٍ.' : 'Spending hours at the repair shop diagnosing a problem a smart system could identify in seconds.'}</p></div>
+                    </div>`,
+                solution: (lang) => `
+                    <div class="text-center">
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4 reveal">${lang === 'ar' ? 'الحل: مركبة تتحدث لغتك' : 'The Solution: A Vehicle That Speaks Your Language'}</h2>
+                        <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-12 reveal">${lang === 'ar' ? 'نظامنا المدمج يحول سيارتك إلى كيان مدرك لذاته. إنه يراقب باستمرار، ويتنبأ بالأعطال قبل حدوثها، ويترجم رموز الأخطاء المعقدة إلى تعليمات واضحة وقابلة للتنفيذ، ويربطك بسلاسة بخدمات الصيانة.' : 'Our embedded system transforms your vehicle into a self-aware entity. It continuously monitors, predicts failures before they happen, translates complex fault codes into simple, actionable advice, and seamlessly connects you to service.'}</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-lg reveal">
+                        <h3 class="text-2xl font-bold text-center mb-8">${lang === 'ar' ? 'بنية النظام: من البيانات إلى القرار' : 'System Architecture: From Data to Decision'}</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-9 items-center gap-4 text-center">
+                            <div class="p-4 bg-slate-100 rounded-lg"><strong>${lang === 'ar' ? 'السيارة' : 'Vehicle'}</strong><p class="text-sm">${lang === 'ar' ? 'مستشعرات و OBD-II' : 'Sensors & OBD-II'}</p></div>
+                            <div class="flow-line hidden md:block"><div class="flow-dot"></div></div>
+                            <div class="p-4 bg-slate-100 rounded-lg"><strong>${lang === 'ar' ? 'الجهاز' : 'Device'}</strong><p class="text-sm">${lang === 'ar' ? 'معالجة آنية' : 'Edge Processing'}</p></div>
+                             <div class="flow-line hidden md:block"><div class="flow-dot" style="animation-delay: 1.2s;"></div></div>
+                            <div class="p-4 bg-slate-100 rounded-lg"><strong>${lang === 'ar' ? 'السحابة' : 'Cloud'}</strong><p class="text-sm">${lang === 'ar' ? 'تحليل تنبؤي' : 'Predictive Analysis'}</p></div>
+                             <div class="flow-line hidden md:block"><div class="flow-dot" style="animation-delay: 2.4s;"></div></div>
+                            <div class="p-4 bg-slate-100 rounded-lg"><strong>${lang === 'ar' ? 'المستخدم' : 'User'}</strong><p class="text-sm">${lang === 'ar' ? 'تنبيهات وتوصيات' : 'Alerts & Actions'}</p></div>
+                             <div class="flow-line hidden md:block"><div class="flow-dot" style="animation-delay: 3.6s;"></div></div>
+                            <div class="p-4 bg-slate-100 rounded-lg"><strong>${lang === 'ar' ? 'الخدمة' : 'Service'}</strong><p class="text-sm">${lang === 'ar' ? 'حجز الصيانة' : 'Service Booking'}</p></div>
+                        </div>
+                    </div>`,
+                dashboard: (lang) => `
+                    <div class="text-center">
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4 reveal">${lang === 'ar' ? 'العرض الحي للوحة القيادة' : 'Live Dashboard Demo'}</h2>
+                        <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-12 reveal">${lang === 'ar' ? 'جرّب كيف يعرض النظام المعلومات مباشرة داخل سيارتك. انقر على الأزرار أدناه لمحاكاة تنبيهات مختلفة ومعرفة كيف يترجم نظامنا البيانات المعقدة إلى نصائح واضحة وبسيطة.' : 'Experience how the system presents information directly in your vehicle. Click the buttons below to simulate different alerts and see how AutoGuard translates complex data into clear, simple advice.'}</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-xl shadow-2xl reveal max-w-4xl mx-auto">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-white">
+                            <div class="md:col-span-2 bg-black/30 p-6 rounded-lg">
+                                <div id="dashboard-display" class="h-48 flex flex-col justify-center items-center text-center">
+                                    <h3 id="display-title" class="text-2xl font-bold text-sky-300 mb-2"></h3>
+                                    <p id="display-message" class="text-slate-300"></p>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-4 rtl:space-x-reverse"><span id="health-icon" class="text-4xl"></span><div><p class="font-bold">${lang === 'ar' ? 'صحة المركبة' : 'Vehicle Health'}</p><p id="health-status" class="text-sm font-semibold"></p></div></div>
+                                <div class="flex items-center space-x-4 rtl:space-x-reverse"><span class="text-4xl">⛽</span><div><p class="font-bold">${lang === 'ar' ? 'مستوى الوقود' : 'Fuel Level'}</p><p class="text-sm text-slate-300">85%</p></div></div>
+                                <div class="flex items-center space-x-4 rtl:space-x-reverse"><span class="text-4xl">🔋</span><div><p class="font-bold">${lang === 'ar' ? 'جهد البطارية' : 'Battery Voltage'}</p><p class="text-sm text-slate-300">12.6V</p></div></div>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-600 flex flex-wrap justify-center gap-3">
+                            <button class="demo-btn p-2 px-4 bg-green-500 hover:bg-green-600 rounded-lg text-sm transition-transform hover:scale-105" data-alert="ok">${lang === 'ar' ? 'الحالة الطبيعية' : 'Normal State'}</button>
+                            <button class="demo-btn p-2 px-4 bg-yellow-500 hover:bg-yellow-600 rounded-lg text-sm transition-transform hover:scale-105" data-alert="tire">${lang === 'ar' ? 'محاكاة ضغط الإطارات' : 'Simulate Tire Pressure'}</button>
+                            <button class="demo-btn p-2 px-4 bg-orange-500 hover:bg-orange-600 rounded-lg text-sm transition-transform hover:scale-105" data-alert="oil">${lang === 'ar' ? 'محاكاة تغيير الزيت' : 'Simulate Oil Change'}</button>
+                            <button class="demo-btn p-2 px-4 bg-red-500 hover:bg-red-600 rounded-lg text-sm transition-transform hover:scale-105" data-alert="engine">${lang === 'ar' ? 'محاكاة عطل المحرك' : 'Simulate Engine Fault'}</button>
+                        </div>
+                    </div>`,
+                scenario: (lang) => `
+                    <div class="text-center">
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4 reveal">${lang === 'ar' ? 'سيناريو استخدام: من التحذير إلى الحل' : 'User Scenario: From Warning to Resolution'}</h2>
+                        <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-12 reveal">${lang === 'ar' ? 'أثناء قيادتك، يكتشف النظام مشكلة. شاهد كيف يرشدك "الحارس الذكي" خلال كل خطوة، محولاً لحظة من القلق إلى عملية بسيطة ومنظمة.' : 'While driving, the system detects an issue. See how AutoGuard walks you through every step, turning a moment of stress into a simple, managed process.'}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                        <div class="md:col-span-1 space-y-4">
+                            <div id="step1" class="scenario-step p-4 border-l-4 rtl:border-r-4 rtl:border-l-0 border-transparent rounded-lg cursor-pointer bg-white shadow-md"><h4 class="font-bold">${lang === 'ar' ? 'الخطوة ١: الكشف الفوري' : 'Step 1: Instant Detection'}</h4><p class="text-sm">${lang === 'ar' ? 'يتم اكتشاف عطل في المحرك.' : 'An engine fault is detected.'}</p></div>
+                            <div id="step2" class="scenario-step p-4 border-l-4 rtl:border-r-4 rtl:border-l-0 border-transparent rounded-lg cursor-pointer bg-white shadow-md"><h4 class="font-bold">${lang === 'ar' ? 'الخطوة ٢: تشخيص واضح' : 'Step 2: Clear Diagnosis'}</h4><p class="text-sm">${lang === 'ar' ? 'يتم ترجمة رمز الخطأ إلى لغة بسيطة.' : 'The error code is translated.'}</p></div>
+                            <div id="step3" class="scenario-step p-4 border-l-4 rtl:border-r-4 rtl:border-l-0 border-transparent rounded-lg cursor-pointer bg-white shadow-md"><h4 class="font-bold">${lang === 'ar' ? 'الخطوة ٣: توصية قابلة للتنفيذ' : 'Step 3: Actionable Advice'}</h4><p class="text-sm">${lang === 'ar' ? 'يقترح النظام خطوات تالية آمنة.' : 'The system suggests safe next steps.'}</p></div>
+                            <div id="step4" class="scenario-step p-4 border-l-4 rtl:border-r-4 rtl:border-l-0 border-transparent rounded-lg cursor-pointer bg-white shadow-md"><h4 class="font-bold">${lang === 'ar' ? 'الخطوة ٤: إيجاد الخدمة' : 'Step 4: Service Location'}</h4><p class="text-sm">${lang === 'ar' ? 'يعرض أقرب ورش الصيانة المعتمدة.' : 'Finds the nearest authorized workshops.'}</p></div>
+                        </div>
+                        <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-lg sticky top-28">
+                            <div id="scenario-details" class="text-center"></div>
+                        </div>
+                    </div>`,
+                benefits: (lang) => `
+                    <div class="text-center">
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4 reveal">${lang === 'ar' ? 'الفوائد الرئيسية' : 'Key Benefits'}</h2>
+                        <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-12 reveal">${lang === 'ar' ? 'يوفر نظامنا قيمة ملموسة للسائقين ومقدمي الخدمات على حد سواء، مما يخلق نظامًا بيئيًا أكثر أمانًا وشفافية وكفاءة للسيارات.' : 'Our system provides tangible value to drivers and service providers alike, creating a safer, more transparent, and efficient automotive ecosystem.'}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-lg reveal text-center transition-transform hover:-translate-y-2"><div class="text-5xl mb-4">💰</div><h3 class="font-bold text-xl mb-2">${lang === 'ar' ? 'تقليل تكاليف الصيانة' : 'Reduce Maintenance Costs'}</h3><p class="text-slate-600">${lang === 'ar' ? 'تجنب الإصلاحات المكلفة عن طريق التنبؤ بالأعطال ومعالجتها مبكرًا.' : 'Avoid costly emergency repairs by predicting faults and addressing them early.'}</p></div>
+                        <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-lg reveal text-center transition-transform hover:-translate-y-2" style="transition-delay: 150ms;"><div class="text-5xl mb-4">📈</div><h3 class="font-bold text-xl mb-2">${lang === 'ar' ? 'تحسين عمر وأداء المركبة' : 'Improve Vehicle Life & Performance'}</h3><p class="text-slate-600">${lang === 'ar' ? 'تضمن الصيانة الاستباقية أن تعمل سيارتك دائمًا في أفضل حالاتها.' : 'Proactive maintenance ensures your vehicle always runs at its optimal condition.'}</p></div>
+                        <div class="bg-white p-8 rounded-xl border border-slate-200 shadow-lg reveal text-center transition-transform hover:-translate-y-2" style="transition-delay: 300ms;"><div class="text-5xl mb-4">🛡️</div><h3 class="font-bold text-xl mb-2">${lang === 'ar' ? 'زيادة سلامة المركبة والسائق' : 'Increase Vehicle & Driver Safety'}</h3><p class="text-slate-600">${lang === 'ar' ? 'يتم تنبيهك إلى المشكلات الحرجة مثل مشاكل الفرامل أو الإطارات قبل أن تصبح خطيرة.' : 'Get alerted to critical issues like brake or tire problems before they become dangerous.'}</p></div>
+                    </div>`,
+                 summary: (lang) => `
+                    <div class="text-center">
+                        <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4 reveal">${lang === 'ar' ? 'الخلاصة: تمكين السائق' : 'Summary: Empowering the Driver'}</h2>
+                        <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-12 reveal">${lang === 'ar' ? 'في جوهره، يزيل هذا النظام الغموض عن صيانة السيارات، ويحول القلق إلى ثقة، والتكاليف غير المتوقعة إلى نفقات يمكن التحكم فيها. إنه يمنح السائقين المعرفة والأدوات اللازمة للحفاظ على سياراتهم آمنة وموثوقة واقتصادية.' : "At its core, this system demystifies car maintenance, turning anxiety into confidence and unpredictable bills into manageable expenses. It gives drivers the knowledge and tools to keep their vehicles safe, reliable, and economical."}</p>
+                    </div>`
+            };
+            
+            const setLanguage = (lang) => {
+                localStorage.setItem('preferredLang', lang);
+                currentLang = lang;
+                document.documentElement.lang = lang;
+                document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+                Object.keys(translations.en).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.textContent = translations[lang][key];
+                    }
+                });
+                
+                Object.keys(sectionTemplates).forEach(key => {
+                    const section = document.getElementById(key);
+                    if (section) {
+                        section.innerHTML = sectionTemplates[key](lang);
+                    }
+                });
+                
+                addInteractivity(lang);
+            };
+            
+            const addInteractivity = (lang) => {
+                const revealElements = document.querySelectorAll('.reveal');
+                const revealObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) entry.target.classList.add('visible');
+                    });
+                }, { threshold: 0.1 });
+                revealElements.forEach(el => revealObserver.observe(el));
+
+                setupDashboardDemo(lang);
+                setupScenario(lang);
+                setupNavScroll();
+            };
+
+            const setupNavScroll = () => {
+                const sections = document.querySelectorAll('section');
+                const navLinks = document.querySelectorAll('.nav-link');
+                const observerOptions = { root: null, rootMargin: '0px', threshold: 0.4 };
+                const navObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute('id');
+                            navLinks.forEach(link => {
+                                link.classList.remove('active');
+                                if (link.getAttribute('href') === `#${id}`) {
+                                    link.classList.add('active');
+                                }
+                            });
+                        }
+                    });
+                }, observerOptions);
+                sections.forEach(section => navObserver.observe(section));
+            }
+
+            const setupDashboardDemo = (lang) => {
+                const alerts = {
+                    en: { ok: {title: "All Systems Nominal", message: "Your vehicle is in excellent condition. Drive safely!", icon: "✅", status: "Excellent", status_color: "text-green-400"}, tire: {title: "Low Tire Pressure", message: "Front-left tire pressure is 28 PSI. Recommended: 35 PSI. Please inflate soon.", icon: "⚠️", status: "Attention Needed", status_color: "text-yellow-400"}, oil: {title: "Oil Change Due", message: "Engine oil life is at 5%. Please schedule a service appointment within the next 500km.", icon: "🔧", status: "Service Due", status_color: "text-orange-400"}, engine: {title: "Engine Fault Detected", message: "DTC P0301: Cylinder 1 Misfire. Engine power may be reduced. Avoid high speeds. Service is recommended.", icon: "🚨", status: "Urgent Action", status_color: "text-red-400"} },
+                    ar: { ok: {title: "كل الأنظمة تعمل", message: "مركبتك في حالة ممتازة. قيادة آمنة!", icon: "✅", status: "ممتازة", status_color: "text-green-400"}, tire: {title: "ضغط الإطار منخفض", message: "ضغط الإطار الأمامي الأيسر 28 PSI. الموصى به: 35 PSI. يرجى النفخ قريبًا.", icon: "⚠️", status: "تحتاج إلى اهتمام", status_color: "text-yellow-400"}, oil: {title: "موعد تغيير الزيت", message: "عمر زيت المحرك عند 5%. يرجى تحديد موعد خدمة خلال الـ 500 كم القادمة.", icon: "🔧", status: "الصيانة مستحقة", status_color: "text-orange-400"}, engine: {title: "تم اكتشاف عطل في المحرك", message: "DTC P0301: خلل في الإسطوانة 1. قد تنخفض قوة المحرك. تجنب السرعات العالية. يوصى بالصيانة.", icon: "🚨", status: "إجراء عاجل", status_color: "text-red-400"} }
+                };
+
+                const updateDashboard = (alertType) => {
+                    const displayTitle = document.getElementById('display-title');
+                    const displayMessage = document.getElementById('display-message');
+                    const healthIcon = document.getElementById('health-icon');
+                    const healthStatus = document.getElementById('health-status');
+                    if (!displayTitle) return; // Guard against null elements
+                    const alertData = alerts[lang][alertType];
+                    displayTitle.textContent = alertData.title;
+                    displayMessage.textContent = alertData.message;
+                    healthIcon.textContent = alertData.icon;
+                    healthStatus.textContent = alertData.status;
+                    healthStatus.className = `text-sm font-semibold ${alertData.status_color}`;
+                    displayTitle.classList.toggle('dashboard-alert', alertType !== 'ok');
+                };
+                
+                document.querySelectorAll('.demo-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        updateDashboard(button.dataset.alert);
+                    });
+                });
+                
+                updateDashboard('ok');
+            };
+
+            const setupScenario = (lang) => {
+                const stepsContent = {
+                    en: {
+                        step1: `<div><div class="text-6xl mb-4">📡</div><h3 class="text-2xl font-bold mb-2">Fault Detected</h3><p>An OBD-II sensor reports an anomaly from the engine control unit (ECU). The on-board system immediately flags it for analysis.</p></div>`,
+                        step2: `<div><div class="text-6xl mb-4">🔍</div><h3 class="text-2xl font-bold mb-2">Diagnosis in Plain Language</h3><p>The system cross-references the error code (P0301) with its cloud database. Instead of a cryptic code, you see a clear message: "Cylinder 1 Misfire Detected."</p></div>`,
+                        step3: `<div><div class="text-6xl mb-4">💡</div><h3 class="text-2xl font-bold mb-2">Actionable Advice</h3><p>The system assesses severity. For a misfire, it advises: "Vehicle is safe to drive at low speeds. Avoid hard acceleration. Schedule service soon to prevent catalytic converter damage."</p></div>`,
+                        step4: `<div><div class="text-6xl mb-4">📍</div><h3 class="text-2xl font-bold mb-2">Find a Solution</h3><p>The system uses GPS to display the 3 nearest authorized service centers on a map, showing their contact info and operating hours. You can tap to call or navigate directly.</p></div>`
+                    },
+                    ar: {
+                        step1: `<div><div class="text-6xl mb-4">📡</div><h3 class="text-2xl font-bold mb-2">تم اكتشاف العطل</h3><p>يبلغ مستشعر OBD-II عن حالة شاذة من وحدة التحكم في المحرك (ECU). يقوم النظام المدمج بتمييزها على الفور لتحليلها.</p></div>`,
+                        step2: `<div><div class="text-6xl mb-4">🔍</div><h3 class="text-2xl font-bold mb-2">تشخيص بلغة واضحة</h3><p>يقوم النظام بمقارنة رمز الخطأ (P0301) بقاعدة بياناته السحابية. بدلاً من رمز غامض، ترى رسالة واضحة: "تم اكتشاف خلل في الإسطوانة رقم 1".</p></div>`,
+                        step3: `<div><div class="text-6xl mb-4">💡</div><h3 class="text-2xl font-bold mb-2">نصيحة قابلة للتنفيذ</h3><p>يقيّم النظام خطورة الموقف. لخلل الإشعال، ينصح: "السيارة آمنة للقيادة بسرعات منخفضة. تجنب التسارع الشديد. حدد موعدًا للصيانة قريبًا لتجنب تلف المحول الحفاز."</p></div>`,
+                        step4: `<div><div class="text-6xl mb-4">📍</div><h3 class="text-2xl font-bold mb-2">إيجاد حل</h3><p>يستخدم النظام GPS لعرض أقرب 3 مراكز خدمة معتمدة على الخريطة، مع عرض معلومات الاتصال وساعات العمل. يمكنك النقر للاتصال أو التوجيه مباشرة.</p></div>`
+                    }
+                };
+                
+                const updateScenario = (stepId) => {
+                    const scenarioDetails = document.getElementById('scenario-details');
+                    if(!scenarioDetails) return; // Guard
+                    document.querySelectorAll('.scenario-step').forEach(s => s.classList.remove('active'));
+                    const activeStep = document.getElementById(stepId);
+                    if (activeStep) activeStep.classList.add('active');
+                    scenarioDetails.innerHTML = stepsContent[lang][stepId];
+                };
+
+                document.querySelectorAll('.scenario-step').forEach(step => {
+                    step.addEventListener('click', () => updateScenario(step.id));
+                });
+                
+                updateScenario('step1');
+            };
+            
+            const toggleLanguage = () => {
+                const newLang = document.documentElement.lang === 'en' ? 'ar' : 'en';
+                setLanguage(newLang);
+            };
+
+            // Initial Load
+            const preferredLang = localStorage.getItem('preferredLang') || 'en';
+            setLanguage(preferredLang);
+            
+            document.getElementById('lang-switcher').addEventListener('click', toggleLanguage);
+            document.getElementById('mobile-lang-switcher').addEventListener('click', toggleLanguage);
+            document.getElementById('mobile-menu-button').addEventListener('click', () => {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
